@@ -12,8 +12,8 @@ import (
 	"github.com/nats-io/nats"
 )
 
-// Version ...
-var Version = "0.0.1"
+// Version is the version number
+var Version string
 
 var addr = flag.String("addr", "localhost:4223", "http service address")
 var n *nats.Conn
