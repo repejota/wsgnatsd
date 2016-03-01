@@ -76,8 +76,8 @@ func main() {
 	var addrPort int
 
 	flag.BoolVar(&showVersion, "version", false, "Print version information.")
-	flag.StringVar(&addrHost, "addr", "", "Network host to listen on.")
-	flag.IntVar(&addrPort, "port", 0, "Port to listen on.")
+	flag.StringVar(&addrHost, "addr", "localhost", "Network host to listen on.")
+	flag.IntVar(&addrPort, "port", 4223, "Port to listen on.")
 
 	flag.Parse()
 
