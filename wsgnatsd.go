@@ -2,9 +2,11 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"runtime"
 	"strings"
 
@@ -69,16 +71,28 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var Addr = flag.String("addr", "localhost:4223", "http service address")
+	var showVersion bool
+	var addrHost string
+	var addrPort int
+
+	flag.BoolVar(&showVersion, "version", false, "Print version information.")
+	flag.StringVar(&addrHost, "addr", "", "Network host to listen on.")
+	flag.IntVar(&addrPort, "port", 0, "Port to listen on.")
 
 	flag.Parse()
+
+	// Show version and exit
+	if showVersion {
+		fmt.Println("wsgnatsd version", Version)
+		os.Exit(0)
+	}
 
 	log.Println("Starting wsgnatsd version", Version)
 	http.HandleFunc("/", Handle)
 
-	log.Println("Listening for client connections on", *Addr)
-	err := http.ListenAndServe(*Addr, nil)
+	log.Printf("Listening for client connections on %s:%d", addrHost, addrPort)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", addrHost, addrPort), nil)
 	if err != nil {
-		log.Fatal("wsgnatsd can't listen on", Addr, err)
+		log.Fatal("wsgnatsd can't listen on", fmt.Sprintf("%s:%d", addrHost, addrPort), err)
 	}
 }
