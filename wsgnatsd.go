@@ -15,7 +15,6 @@ import (
 // Version is the version number
 var Version string
 
-var addr = flag.String("addr", "localhost:4223", "http service address")
 var n *nats.Conn
 
 //var upgrader = websocket.Upgrader{} // use default options
@@ -70,14 +69,16 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	var Addr = flag.String("addr", "localhost:4223", "http service address")
+
 	flag.Parse()
 
 	log.Println("Starting wsgnatsd version", Version)
 	http.HandleFunc("/", Handle)
 
-	log.Println("Listening for client connections on", *addr)
-	err := http.ListenAndServe(*addr, nil)
+	log.Println("Listening for client connections on", *Addr)
+	err := http.ListenAndServe(*Addr, nil)
 	if err != nil {
-		log.Fatal("wsgnatsd can't listen on", addr, err)
+		log.Fatal("wsgnatsd can't listen on", Addr, err)
 	}
 }
