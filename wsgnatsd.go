@@ -70,10 +70,9 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.Println("Starting wsgnatsd version", Version)
-
 	flag.Parse()
 
+	log.Println("Starting wsgnatsd version", Version)
 	http.HandleFunc("/", Handle)
 
 	log.Println("Listening for client connections on", *addr)
