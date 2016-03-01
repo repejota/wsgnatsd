@@ -20,49 +20,54 @@ var Version string
 var n *nats.Conn
 
 //var upgrader = websocket.Upgrader{} // use default options
-var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
-
-func post(subject string, r *http.Request) {
-	// Publish messages
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		println("ERROR" + err.Error())
-	}
-
-	n.Publish(subject, body)
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
-func get(subject string, w http.ResponseWriter, r *http.Request) {
-	c, err := upgrader.Upgrade(w, r, nil)
+// Publish a message to a subject
+func post(subject string, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Print("upgrade:", err)
+		log.Println("Error publishing a message", err)
 		return
 	}
+	n.Publish(subject, body)
+	defer n.Close()
+}
 
-	mt, _, err := c.ReadMessage()
+func get(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("read:", err)
+		log.Println("Error upgrading to a websocket connection", err)
+		return
+	}
+	messageType, payload, err := conn.ReadMessage()
+	subject := string(payload)
+	if err != nil {
+		log.Println("Error reading a message", err)
 		return
 	}
 	// Subscribe to nats messages
-	log.Println("Subscribed to " + subject)
+	log.Println("Subscribed to", subject)
 	n.Subscribe(subject, func(m *nats.Msg) {
-		err = c.WriteMessage(mt, m.Data)
+		err = conn.WriteMessage(messageType, m.Data)
 		if err != nil {
-			log.Println("write:", err)
+			log.Println("Error writing a message", err)
 		}
 	})
 	runtime.Goexit()
 }
 
-// Handle ...
+// Handle handles the initial HTTP connection.
+//
 func Handle(w http.ResponseWriter, r *http.Request) {
 	n, _ = nats.Connect(nats.DefaultURL)
-	subject := strings.Replace(r.URL.Path, "/", "", 1)
-
 	if r.Method == "GET" {
-		get(subject, w, r)
+		get(w, r)
 	} else if r.Method == "POST" {
+		subject := strings.Replace(r.URL.Path, "/", "", 1)
 		post(subject, r)
 	} else {
 		http.Error(w, "Method not allowed", 405)
@@ -87,9 +92,9 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Start server
 	log.Println("Starting wsgnatsd version", Version)
 	http.HandleFunc("/", Handle)
-
 	log.Printf("Listening for client connections on %s:%d", addrHost, addrPort)
 	err := http.ListenAndServe(fmt.Sprintf("%s:%d", addrHost, addrPort), nil)
 	if err != nil {
