@@ -57,8 +57,12 @@ func get(w http.ResponseWriter, r *http.Request) {
 	subject := string(payload)
 	if err != nil {
 		log.Println("Error reading a message", err)
-		conn.Close()
-		n.Close()
+		if conn != nil {
+			conn.Close()
+		}
+		if n != nil {
+			n.Close()
+		}
 		return
 	}
 
@@ -69,8 +73,12 @@ func get(w http.ResponseWriter, r *http.Request) {
 		err = conn.WriteMessage(messageType, m.Data)
 		if err != nil {
 			log.Println("Error writing a message", err)
-			conn.Close()
-			n.Close()
+			if conn != nil {
+				conn.Close()
+			}
+			if n != nil {
+				n.Close()
+			}
 		}
 	})
 
@@ -84,7 +92,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					log.Println("Error writing ping", err)
 					ticker.Stop()
-					break;
+					break
 				}
 			}
 		}
@@ -99,8 +107,12 @@ func get(w http.ResponseWriter, r *http.Request) {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Printf("error: %v", err)
-			conn.Close()
-			n.Close()
+			if conn != nil {
+				conn.Close()
+			}
+			if n != nil {
+				n.Close()
+			}
 			break
 		}
 
