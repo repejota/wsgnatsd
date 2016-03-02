@@ -53,15 +53,12 @@ func get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer func() {
-		conn.Close()
-		n.Close()
-	}()
-
 	messageType, payload, err := conn.ReadMessage()
 	subject := string(payload)
 	if err != nil {
 		log.Println("Error reading a message", err)
+		conn.Close()
+		n.Close()
 		return
 	}
 
@@ -72,22 +69,21 @@ func get(w http.ResponseWriter, r *http.Request) {
 		err = conn.WriteMessage(messageType, m.Data)
 		if err != nil {
 			log.Println("Error writing a message", err)
-			//SHOULD WE CLOSE THE CONN AND THE NATS CONNECTION
+			conn.Close()
+			n.Close()
 		}
 	})
 
 	//Start ticker for sending ping
 	ticker := time.NewTicker(pingPeriod)
 	go func() {
-		defer func() {
-			ticker.Stop()
-		}()
 		for {
 			select {
 			case <-ticker.C:
 				err = conn.WriteMessage(websocket.PingMessage, []byte{})
 				if err != nil {
 					log.Println("Error writing ping", err)
+					ticker.Stop()
 					break;
 				}
 			}
@@ -103,6 +99,8 @@ func get(w http.ResponseWriter, r *http.Request) {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Printf("error: %v", err)
+			conn.Close()
+			n.Close()
 			break
 		}
 
