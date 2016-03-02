@@ -63,6 +63,9 @@ func get(w http.ResponseWriter, r *http.Request) {
 		if n != nil {
 			n.Close()
 		}
+		if ticker != nil {
+			ticker.Stop()
+		}
 		return
 	}
 
@@ -78,6 +81,9 @@ func get(w http.ResponseWriter, r *http.Request) {
 			}
 			if n != nil {
 				n.Close()
+			}
+			if ticker != nil {
+				ticker.Stop()
 			}
 		}
 	})
@@ -112,6 +118,9 @@ func get(w http.ResponseWriter, r *http.Request) {
 			}
 			if n != nil {
 				n.Close()
+			}
+			if ticker != nil {
+				ticker.Stop()
 			}
 			break
 		}
