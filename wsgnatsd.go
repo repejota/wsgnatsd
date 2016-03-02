@@ -53,6 +53,22 @@ func get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//Start ticker for sending ping
+	ticker := time.NewTicker(pingPeriod)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				err = conn.WriteMessage(websocket.PingMessage, []byte{})
+				if err != nil {
+					log.Println("Error writing ping", err)
+					ticker.Stop()
+					break
+				}
+			}
+		}
+	}()
+
 	messageType, payload, err := conn.ReadMessage()
 	subject := string(payload)
 	if err != nil {
@@ -87,22 +103,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	})
-
-	//Start ticker for sending ping
-	ticker := time.NewTicker(pingPeriod)
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				err = conn.WriteMessage(websocket.PingMessage, []byte{})
-				if err != nil {
-					log.Println("Error writing ping", err)
-					ticker.Stop()
-					break
-				}
-			}
-		}
-	}()
 
 	// Start read loop so we can publish a message to a subject over websocket
 	conn.SetReadLimit(maxMessageSize)
