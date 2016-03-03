@@ -22,7 +22,7 @@ const (
 	writeWait      = 5 * time.Second
 	pongWait       = 10 * time.Second
 	pingPeriod     = (pongWait * 9) / 10
-	maxMessageSize = 1024 * 1024
+	maxMessageSize = 2000
 )
 
 var n *nats.Conn
@@ -31,8 +31,8 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
-	ReadBufferSize:  maxMessageSize * 2,
-	WriteBufferSize: maxMessageSize * 2,
+	ReadBufferSize:  maxMessageSize,
+	WriteBufferSize: maxMessageSize,
 }
 
 // Publish a message to a subject over http POST
