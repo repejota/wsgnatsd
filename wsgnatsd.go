@@ -62,9 +62,18 @@ func get(w http.ResponseWriter, r *http.Request) {
 				err = conn.WriteMessage(websocket.PingMessage, []byte{})
 				if err != nil {
 					log.Println("Error writing ping", err)
-					n.Close()
-					conn.Close()
-					ticker.Stop()
+					if n != nil {
+						log.Printf("Close NATS ticker")
+						n.Close()
+					}
+					if conn != nil {
+						log.Printf("Close Conn ticker")
+						conn.Close()
+					}
+					if tick != nil {
+						log.Printf("Stop ticker ticker")
+						ticker.Stop()
+					}
 					break
 				}
 			}
@@ -75,9 +84,18 @@ func get(w http.ResponseWriter, r *http.Request) {
 	subject := string(payload)
 	if err != nil {
 		log.Println("Error reading a message", err)
-		n.Close()
-		conn.Close()
-		ticker.Stop()
+		if n != nil {
+			log.Printf("Close NATS error reading first mesage")
+			n.Close()
+		}
+		if conn != nil {
+			log.Printf("Close Conn error reading first mesage")
+			conn.Close()
+		}
+		if tick != nil {
+			log.Printf("Stop ticker error reading first mesage")
+			ticker.Stop()
+		}
 		return
 	}
 
@@ -88,9 +106,18 @@ func get(w http.ResponseWriter, r *http.Request) {
 		err = conn.WriteMessage(messageType, m.Data)
 		if err != nil {
 			log.Println("Error writing a message", err)
-			n.Close()
-			conn.Close()
-			ticker.Stop()
+			if n != nil {
+				log.Printf("Close NATS error writing mesage")
+				n.Close()
+			}
+			if conn != nil {
+				log.Printf("Close Conn error writing mesage")
+				conn.Close()
+			}
+			if tick != nil {
+				log.Printf("Stop ticker error writing mesage")
+				ticker.Stop()
+			}
 		}
 	})
 
@@ -103,9 +130,18 @@ func get(w http.ResponseWriter, r *http.Request) {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Printf("error: %v", err)
-			n.Close()
-			conn.Close()
-			ticker.Stop()
+			if n != nil {
+				log.Printf("Close NATS read")
+				n.Close()
+			}
+			if conn != nil {
+				log.Printf("Close Conn read")
+				conn.Close()
+			}
+			if tick != nil {
+				log.Printf("Stop ticker read")
+				ticker.Stop()
+			}
 			break
 		}
 
