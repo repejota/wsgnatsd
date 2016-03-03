@@ -162,7 +162,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 // Handle handles the initial HTTP connection.
 //
 func Handle(w http.ResponseWriter, r *http.Request) {
-	n, _ = nats.Connect("nats://10.240.0.22:4242")
+	n, _ = nats.Connect("nats://10.240.0.22:4222")
 	if r.Method == "GET" {
 		get(w, r)
 	} else if r.Method == "POST" {
