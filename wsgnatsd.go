@@ -39,7 +39,7 @@ var upgrader = websocket.Upgrader{
 func post(subject string, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Println("1 Error publishing a message", err)
+		log.Println("Error publishing a message", err)
 		return
 	}
 	n.Publish(subject, body)
@@ -49,7 +49,7 @@ func post(subject string, r *http.Request) {
 func get(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("2 Error upgrading to a websocket connection", err)
+		log.Println("Error upgrading to a websocket connection", err)
 		return
 	}
 
@@ -61,12 +61,10 @@ func get(w http.ResponseWriter, r *http.Request) {
 			case <-ticker.C:
 				err = conn.WriteMessage(websocket.PingMessage, []byte{})
 				if err != nil {
-					log.Println("3 Error writing ping", err)
-					log.Println("Close...")
+					log.Println("Error writing ping", err)
 					n.Close()
 					conn.Close()
 					ticker.Stop()
-					log.Println("Closed")
 					break
 				}
 			}
@@ -76,12 +74,10 @@ func get(w http.ResponseWriter, r *http.Request) {
 	messageType, payload, err := conn.ReadMessage()
 	subject := string(payload)
 	if err != nil {
-		log.Println("4 Error reading a message", err)
-		log.Println("Close...")
+		log.Println("Error reading a message", err)
 		n.Close()
 		conn.Close()
 		ticker.Stop()
-		log.Println("Closed")
 		return
 	}
 
@@ -91,12 +87,10 @@ func get(w http.ResponseWriter, r *http.Request) {
 		conn.SetWriteDeadline(time.Now().Add(writeWait))
 		err = conn.WriteMessage(messageType, m.Data)
 		if err != nil {
-			log.Println("5 Error writing a message", err)
-			log.Println("Close...")
+			log.Println("Error writing a message", err)
 			n.Close()
 			conn.Close()
 			ticker.Stop()
-			log.Println("Closed")
 		}
 	})
 
@@ -108,12 +102,10 @@ func get(w http.ResponseWriter, r *http.Request) {
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
-			log.Printf("6 error: %v", err)
-			log.Println("Close...")
+			log.Printf("error: %v", err)
 			n.Close()
 			conn.Close()
 			ticker.Stop()
-			log.Println("Closed")
 			break
 		}
 
