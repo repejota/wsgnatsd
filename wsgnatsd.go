@@ -81,7 +81,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	messageType, payload, err := conn.ReadMessage()
-	subject := string(payload)
 	if err != nil {
 		log.Println("Error reading a message", err)
 		if n != nil {
@@ -100,6 +99,8 @@ func get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Subscribe to nats messages
+	subject := string(payload)
+
 	log.Println("Subscribed to", subject)
 	n.Subscribe(subject, func(m *nats.Msg) {
 		conn.SetWriteDeadline(time.Now().Add(writeWait))
@@ -153,6 +154,27 @@ func get(w http.ResponseWriter, r *http.Request) {
 			data := mes[index:len(mes)]
 
 			n.Publish(subject, []byte(data))
+		} else {
+			subject := mes
+			n.Subscribe(subject, func(m *nats.Msg) {
+				conn.SetWriteDeadline(time.Now().Add(writeWait))
+				err = conn.WriteMessage(messageType, m.Data)
+				if err != nil {
+					log.Println("Error writing a message", err)
+					if n != nil {
+						log.Printf("Close NATS error writing mesage")
+						n.Close()
+					}
+					if conn != nil {
+						log.Printf("Close Conn error writing mesage")
+						conn.Close()
+					}
+					if ticker != nil {
+						log.Printf("Stop ticker error writing mesage")
+						ticker.Stop()
+					}
+				}
+			})
 		}
 	}
 
@@ -162,7 +184,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 // Handle handles the initial HTTP connection.
 //
 func Handle(w http.ResponseWriter, r *http.Request) {
-	n, _ = nats.Connect("nats://10.240.0.22:4222")
+	n, _ = nats.Connect(nats.DefaultURL)
 	if r.Method == "GET" {
 		get(w, r)
 	} else if r.Method == "POST" {
