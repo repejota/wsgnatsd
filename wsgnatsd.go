@@ -59,6 +59,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 		for {
 			select {
 			case <-ticker.C:
+				log.Println("Ping")
 				err = conn.WriteMessage(websocket.PingMessage, []byte{})
 				if err != nil {
 					log.Println("Error writing ping", err)
@@ -77,7 +78,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error reading a message", err)
 		n.Close()
 		conn.Close()
-		ticker.Stop()
 		return
 	}
 
@@ -90,7 +90,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error writing a message", err)
 			n.Close()
 			conn.Close()
-			ticker.Stop()
 		}
 	})
 
@@ -105,7 +104,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 			log.Printf("error: %v", err)
 			n.Close()
 			conn.Close()
-			ticker.Stop()
 			break
 		}
 
