@@ -62,9 +62,11 @@ func get(w http.ResponseWriter, r *http.Request) {
 				err = conn.WriteMessage(websocket.PingMessage, []byte{})
 				if err != nil {
 					log.Println("Error writing ping", err)
+					log.Println("Close...")
 					n.Close()
 					conn.Close()
 					ticker.Stop()
+					log.Println("Closed")
 					break
 				}
 			}
@@ -75,9 +77,11 @@ func get(w http.ResponseWriter, r *http.Request) {
 	subject := string(payload)
 	if err != nil {
 		log.Println("Error reading a message", err)
+		log.Println("Close...")
 		n.Close()
 		conn.Close()
 		ticker.Stop()
+		log.Println("Closed")
 		return
 	}
 
@@ -88,9 +92,11 @@ func get(w http.ResponseWriter, r *http.Request) {
 		err = conn.WriteMessage(messageType, m.Data)
 		if err != nil {
 			log.Println("Error writing a message", err)
+			log.Println("Close...")
 			n.Close()
 			conn.Close()
 			ticker.Stop()
+			log.Println("Closed")
 		}
 	})
 
@@ -103,9 +109,11 @@ func get(w http.ResponseWriter, r *http.Request) {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
 			log.Printf("error: %v", err)
+			log.Println("Close...")
 			n.Close()
 			conn.Close()
 			ticker.Stop()
+			log.Println("Closed")
 			break
 		}
 
