@@ -70,7 +70,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 						log.Printf("Close Conn ticker")
 						conn.Close()
 					}
-					if tick != nil {
+					if ticker != nil {
 						log.Printf("Stop ticker ticker")
 						ticker.Stop()
 					}
@@ -92,7 +92,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Close Conn error reading first mesage")
 			conn.Close()
 		}
-		if tick != nil {
+		if ticker != nil {
 			log.Printf("Stop ticker error reading first mesage")
 			ticker.Stop()
 		}
@@ -114,7 +114,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Close Conn error writing mesage")
 				conn.Close()
 			}
-			if tick != nil {
+			if ticker != nil {
 				log.Printf("Stop ticker error writing mesage")
 				ticker.Stop()
 			}
@@ -138,7 +138,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Close Conn read")
 				conn.Close()
 			}
-			if tick != nil {
+			if ticker != nil {
 				log.Printf("Stop ticker read")
 				ticker.Stop()
 			}
