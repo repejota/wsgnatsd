@@ -59,7 +59,6 @@ func get(w http.ResponseWriter, r *http.Request) {
 		for {
 			select {
 			case <-ticker.C:
-				log.Println("Ping")
 				err = conn.WriteMessage(websocket.PingMessage, []byte{})
 				if err != nil {
 					log.Println("Error writing ping", err)
@@ -124,7 +123,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 // Handle handles the initial HTTP connection.
 //
 func Handle(w http.ResponseWriter, r *http.Request) {
-	n, _ = nats.Connect(nats.DefaultURL)
+	n, _ = nats.Connect("nats://10.240.0.22:4242")
 	if r.Method == "GET" {
 		get(w, r)
 	} else if r.Method == "POST" {
