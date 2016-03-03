@@ -77,6 +77,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error reading a message", err)
 		n.Close()
 		conn.Close()
+		ticker.Stop()
 		return
 	}
 
@@ -89,6 +90,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error writing a message", err)
 			n.Close()
 			conn.Close()
+			ticker.Stop()
 		}
 	})
 
@@ -103,6 +105,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 			log.Printf("error: %v", err)
 			n.Close()
 			conn.Close()
+			ticker.Stop()
 			break
 		}
 
